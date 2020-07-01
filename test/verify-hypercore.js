@@ -1,5 +1,5 @@
 var test = require('tape')
-var signNoiseKeyExt = require('../')
+var authSessionExt = require('../')
 var hcrypto = require('hypercore-crypto')
 var hypercore = require('hypercore')
 var Proto = require('hypercore-protocol')
@@ -19,8 +19,8 @@ test('verify over hypercore', function (t) {
     proto: new Proto(false)
   }
   A.local.append('hello')
-  A.local.ready(function () {
-    A.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
+  ready([A.local,B.local], function () {
+    A.proto.registerExtension('auth-session', authSessionExt({
       localFeedPublicKey: A.local.key,
       localFeedSecretKey: A.local.secretKey,
       onVerify: function (ok, remotePK) {
@@ -30,9 +30,7 @@ test('verify over hypercore', function (t) {
         A.local.replicate(A.proto)
       }
     }))
-  })
-  B.local.ready(function () {
-    B.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
+    B.proto.registerExtension('auth-session', authSessionExt({
       localFeedPublicKey: B.local.key,
       localFeedSecretKey: B.local.secretKey,
       onVerify: function (ok, remotePK) {
@@ -48,6 +46,16 @@ test('verify over hypercore', function (t) {
         })
       }
     }))
+    A.proto.pipe(B.proto).pipe(A.proto)
   })
-  A.proto.pipe(B.proto).pipe(A.proto)
 })
+
+function ready (feeds, cb) {
+  var pending = 1 + feeds.length
+  feeds.forEach(function (feed) {
+    feed.ready(function () {
+      if (--pending === 0) cb()
+    })
+  })
+  if (--pending === 0) cb()
+}

@@ -1,7 +1,7 @@
 {
-  "name": "hypercore-sign-noise-key-extension",
+  "name": "hypercore-authenticate-session-extension",
   "version": "1.0.0",
-  "description": "hypercore extension to verify the identity of peers by signing the noise key with another key",
+  "description": "authenticate a hypercore replication session for a feed key",
   "scripts": {
     "test": "tape test/*.js"
   },

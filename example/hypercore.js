@@ -1,4 +1,4 @@
-var signNoiseKeyExt = require('../')
+var authSessionExt = require('../')
 var Proto = require('hypercore-protocol')
 var hypercore = require('hypercore')
 var { randomBytes } = require('crypto')
@@ -16,7 +16,7 @@ A.feed.append('hello')
 A.feed.append('world')
 
 ready([A.feed,B.feed], function () {
-  A.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
+  A.proto.registerExtension('auth-session', authSessionExt({
     localFeedPublicKey: A.feed.key,
     localFeedSecretKey: A.feed.secretKey,
     onVerify: function (ok, remotePubKey) {
@@ -26,7 +26,7 @@ ready([A.feed,B.feed], function () {
       A.feed.replicate(A.proto)
     }
   }))
-  B.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
+  B.proto.registerExtension('auth-session', authSessionExt({
     localFeedPublicKey: B.feed.key,
     localFeedSecretKey: B.feed.secretKey,
     onVerify: function (ok, remotePubKey) {

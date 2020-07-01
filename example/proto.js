@@ -1,4 +1,4 @@
-var signNoiseKeyExt = require('../')
+var authSessionExt = require('../')
 var Proto = require('hypercore-protocol')
 var hcrypto = require('hypercore-crypto')
 
@@ -13,14 +13,14 @@ var B = {
 console.log('A.keys.publicKey=', A.keys.publicKey.toString('hex'))
 console.log('B.keys.publicKey=', B.keys.publicKey.toString('hex'))
 
-A.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
+A.proto.registerExtension('auth-session', authSessionExt({
   localFeedPublicKey: A.keys.publicKey,
   localFeedSecretKey: A.keys.secretKey,
   onVerify: function (ok, remotePubKey) {
     console.log('A: ok=',ok, 'remotePubKey=', remotePubKey.toString('hex'))
   }
 }))
-B.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
+B.proto.registerExtension('auth-session', authSessionExt({
   localFeedPublicKey: B.keys.publicKey,
   localFeedSecretKey: B.keys.secretKey,
   onVerify: function (ok, remotePubKey) {

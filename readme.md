@@ -1,21 +1,20 @@
-# hypercore-sign-noise-key-extension
+# hypercore-authenticate-session-extension
 
-hypercore extension to verify the identity of peers by signing the noise key
-with another key
+authenticate a hypercore replication session for a feed key
 
-If you use this module, make sure you generate a new unique noise key pair for
-every replication session (this is the default behavior). *DO NOT* reuse noise
-keys between sessions, as this introduces the possibility to perform a trivial
-replay attack from whichever other peers received the same noise key.
+This extension works by signing the noise handshake hash with a key that will
+identify you to the remote session peer.
+
+For example, you might only wish to replicate the content of your hypercore feed
+with certain users identified and authenticated by their hypercore feed keys.
 
 # example
 
 This example authenticates that the other peer can sign messages as
-`remotePubKey` by signing the public noise key which authenticates the
-protocol connection.
+`remotePubKey` by signing the noise handshake hash.
 
 ``` js
-var signNoiseKeyExt = require('hypercore-sign-noise-key-extension')
+var authSessionExt = require('hypercore-authenticate-session-extension')
 var Proto = require('hypercore-protocol')
 var hcrypto = require('hypercore-crypto')
 
@@ -30,14 +29,14 @@ var B = {
 console.log('A.keys.publicKey=', A.keys.publicKey.toString('hex'))
 console.log('B.keys.publicKey=', B.keys.publicKey.toString('hex'))
 
-A.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
+A.proto.registerExtension('auth-session', authSessionExt({
   localFeedPublicKey: A.keys.publicKey,
   localFeedSecretKey: A.keys.secretKey,
   onVerify: function (ok, remotePubKey) {
     console.log('A: ok=',ok, 'remotePubKey=', remotePubKey.toString('hex'))
   }
 }))
-B.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
+B.proto.registerExtension('auth-session', authSessionExt({
   localFeedPublicKey: B.keys.publicKey,
   localFeedSecretKey: B.keys.secretKey,
   onVerify: function (ok, remotePubKey) {
@@ -61,7 +60,7 @@ You might want to do this for an application where users are mostly identified
 by their hypercore feeds.
 
 ``` js
-var signNoiseKeyExt = require('hypercore-sign-noise-key-extension')
+var authSessionExt = require('hypercore-authenticate-session-extension')
 var Proto = require('hypercore-protocol')
 var hypercore = require('hypercore')
 var { randomBytes } = require('crypto')
@@ -79,7 +78,7 @@ A.feed.append('hello')
 A.feed.append('world')
 
 ready([A.feed,B.feed], function () {
-  A.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
+  A.proto.registerExtension('auth-session', authSessionExt({
     localFeedPublicKey: A.feed.key,
     localFeedSecretKey: A.feed.secretKey,
     onVerify: function (ok, remotePubKey) {
@@ -89,7 +88,7 @@ ready([A.feed,B.feed], function () {
       A.feed.replicate(A.proto)
     }
   }))
-  B.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
+  B.proto.registerExtension('auth-session', authSessionExt({
     localFeedPublicKey: B.feed.key,
     localFeedSecretKey: B.feed.secretKey,
     onVerify: function (ok, remotePubKey) {
@@ -124,30 +123,24 @@ hypercore's replicate() method after the session has been authenticated.
 
 Each side opens an extension channel and sends a message containing the
 localFeedPublicKey followed by a signature message proving ownership of the
-localFeedPublicKey by signing the localNoisePublicKey with the
+localFeedPublicKey by signing the [noise handshake hash][] with the
 localFeedSecretKey.
 
-This scheme avoids additional latency from a challenge/response but only works
-when `localNoisePublicKey` is uniquely generated for each replication session
-with a peer. *DO NOT* reuse noise public keys with this extension.
+[noise handshake hash]: http://noiseprotocol.org/noise.html#channel-binding
 
 # api
 
 ``` js
-var signNoiseKeyExt = require('hypercore-sign-noise-key-extension')
+var authSessionExt = require('hypercore-auth-session-extension')
 ```
 
-## var extFn = signNoiseKeyExt(opts)
+## var extFn = authSessionExt(opts)
 
 Return `extFn` that can be passed to `proto.registerExtension()` for a
 hypercore-protocol instance `proto`.
 
 * `opts.localFeedPublicKey` - local public key you want to "identify" as
 * `opts.localFeedSecretKey` - local secret key to sign the localNoisePublicKey
-* `opts.localNoisePublicKey` - local public noise key to sign. read from the
-  hypercore-protocol if not provided
-* `opts.remoteNoisePublicKey` - remote public noise key to expect to be signed
-  by the other side. read from hypercore-protocol if not provided
 * `opts.onVerify(ok, remotePublicKey)` - function that gets called with a
   boolean `ok` which is true when the remotePublicKey was verified with a
   signature
@@ -159,7 +152,7 @@ probably destroy the session.
 # install
 
 ```
-npm install hypercore-sign-noise-key-extension
+npm install hypercore-authenticate-session-extension
 ```
 
 # license

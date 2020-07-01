@@ -2,23 +2,22 @@ const hcrypto = require('hypercore-crypto')
 
 module.exports = function (opts) {
   return function (ext) {
-    process.nextTick(function () {
+    var msgIndex = 0
+    var remoteFeedPublicKey = null
+    ext.local.handlers.on('handshake', function () {
       ext.send(toBuf(opts.localFeedPublicKey))
       ext.send(hcrypto.sign(
-        toBuf(opts.localNoisePublicKey || ext.local.handlers.publicKey),
+        ext.local.handlers.state.handshakeHash,
         toBuf(opts.localFeedSecretKey)
       ))
     })
-    var msgIndex = 0
-    var remoteFeedPublicKey = null
     return {
       onmessage: function (message) {
         if (msgIndex === 0) {
           remoteFeedPublicKey = message
         } else if (msgIndex === 1) {
           var ok = hcrypto.verify(
-            toBuf(opts.remoteNoisePublicKey
-              || ext.local.handlers.remotePublicKey),
+            ext.local.handlers.state.handshakeHash,
             message,
             remoteFeedPublicKey
           )
