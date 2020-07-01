@@ -1,6 +1,6 @@
 {
   "name": "hypercore-authenticate-session-extension",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "authenticate a hypercore replication session for a feed key",
   "scripts": {
     "test": "tape test/*.js"
