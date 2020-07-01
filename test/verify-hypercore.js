@@ -1,5 +1,5 @@
 var test = require('tape')
-var SignNoiseKeyExt = require('../')
+var signNoiseKeyExt = require('../')
 var hcrypto = require('hypercore-crypto')
 var hypercore = require('hypercore')
 var Proto = require('hypercore-protocol')
@@ -20,7 +20,7 @@ test('verify over hypercore', function (t) {
   }
   A.local.append('hello')
   A.local.ready(function () {
-    A.proto.registerExtension('sign-noise-key', SignNoiseKeyExt({
+    A.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
       localFeedPublicKey: A.local.key,
       localFeedSecretKey: A.local.secretKey,
       onVerify: function (ok, remotePK) {
@@ -32,7 +32,7 @@ test('verify over hypercore', function (t) {
     }))
   })
   B.local.ready(function () {
-    B.proto.registerExtension('sign-noise-key', SignNoiseKeyExt({
+    B.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
       localFeedPublicKey: B.local.key,
       localFeedSecretKey: B.local.secretKey,
       onVerify: function (ok, remotePK) {

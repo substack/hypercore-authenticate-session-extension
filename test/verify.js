@@ -1,5 +1,5 @@
 var test = require('tape')
-var SignNoiseKeyExt = require('../')
+var signNoiseKeyExt = require('../')
 var Proto = require('hypercore-protocol')
 var hcrypto = require('hypercore-crypto')
 
@@ -13,7 +13,7 @@ test('verify over hypercore-protocol with implicit noise keys', function (t) {
     proto: new Proto(false, { live: true }),
     keys: hcrypto.keyPair()
   }
-  A.proto.registerExtension('sign-noise-key', SignNoiseKeyExt({
+  A.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
     localFeedPublicKey: A.keys.publicKey,
     localFeedSecretKey: A.keys.secretKey,
     onVerify: function (ok, remotePK) {
@@ -21,7 +21,7 @@ test('verify over hypercore-protocol with implicit noise keys', function (t) {
       t.deepEqual(remotePK, B.keys.publicKey)
     }
   }))
-  B.proto.registerExtension('sign-noise-key', SignNoiseKeyExt({
+  B.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
     localFeedPublicKey: B.keys.publicKey,
     localFeedSecretKey: B.keys.secretKey,
     onVerify: function (ok, remotePK) {
@@ -42,7 +42,7 @@ test('verify over hypercore-protocol with explicit noise keys', function (t) {
     proto: new Proto(false, { live: true }),
     keys: hcrypto.keyPair()
   }
-  A.proto.registerExtension('sign-noise-key', SignNoiseKeyExt({
+  A.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
     localFeedPublicKey: A.keys.publicKey,
     localFeedSecretKey: A.keys.secretKey,
     localNoisePublicKey: A.proto.publicKey,
@@ -52,7 +52,7 @@ test('verify over hypercore-protocol with explicit noise keys', function (t) {
       t.deepEqual(remotePK, B.keys.publicKey)
     }
   }))
-  B.proto.registerExtension('sign-noise-key', SignNoiseKeyExt({
+  B.proto.registerExtension('sign-noise-key', signNoiseKeyExt({
     localFeedPublicKey: B.keys.publicKey,
     localFeedSecretKey: B.keys.secretKey,
     localNoisePublicKey: B.proto.publicKey,
