@@ -5,6 +5,11 @@ module.exports = function (opts) {
     var msgIndex = 0
     var remoteFeedPublicKey = null
     ext.local.handlers.on('handshake', function () {
+      if (!ext.local.handlers.state.handshakeHash) {
+        throw new Error('handshakeHash not set. check that the version of'
+          + ' hypercore-protocol you are using is using'
+          + ' simple-hypercore-protocol@^2.1.0')
+      }
       ext.send(toBuf(opts.localFeedPublicKey))
       ext.send(hcrypto.sign(
         ext.local.handlers.state.handshakeHash,
