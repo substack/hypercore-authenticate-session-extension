@@ -1,0 +1,17 @@
+{
+  "name": "hypercore-sign-noise-key-extension",
+  "version": "1.0.0",
+  "description": "hypercore extension to verify the identity of peers by signing the noise key with another key",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "dependencies": {
+    "hypercore-crypto": "^2.1.1"
+  },
+  "devDependencies": {
+    "collect-stream": "^1.2.1",
+    "hypercore-protocol": "^8.0.1",
+    "random-access-memory": "^3.1.1",
+    "tape": "^5.0.1"
+  }
+}
